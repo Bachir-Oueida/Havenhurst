@@ -3,12 +3,95 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { ScheduleVisitModal } from "../../components/schedule-visit-modal";
-import { getAvailableUnitCount, UNITS } from "@/lib/units";
+import { formatBathrooms, getAvailableUnitCount, UNITS, type Unit } from "@/lib/units";
 import mainImage from "../../public/images/6.jpg";
+
+function UnitCard({ unit, onInquire }: { unit: Unit; onInquire: () => void }) {
+  const isLeased = unit.status === "LEASED";
+  const isAvailable = !isLeased;
+  const detailHref = `/availability/${unit.unitNumber}`;
+
+  return (
+    <article
+      className={`flex min-h-[485px] flex-col border border-[color:rgba(154,143,133,0.55)] bg-white ${
+        isLeased ? "opacity-60" : ""
+      }`}
+    >
+      <Link
+        href={detailHref}
+        className="block w-full text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1A1A1A]"
+        aria-label={`View details for unit ${unit.unitNumber}`}
+      >
+        {unit.photos.length > 0 ? (
+          <img
+            src={unit.photos[0]}
+            alt={`Unit ${unit.unitNumber}`}
+            className={`h-48 w-full object-cover ${isLeased ? "opacity-50" : ""}`}
+          />
+        ) : (
+          <div className={`flex h-48 w-full items-center justify-center bg-[#E8E3DC] ${isLeased ? "opacity-50" : ""}`}>
+            <p className="text-xs uppercase tracking-[0.28em] text-[#9A8F85]">No photos available</p>
+          </div>
+        )}
+      </Link>
+
+      <div className="flex flex-1 flex-col p-4">
+        <div className="flex items-center justify-between gap-3">
+          <Link href={detailHref} className="font-display text-2xl text-[#1A1A1A] hover:underline">
+            Unit {unit.unitNumber}
+          </Link>
+          <span
+            className={`rounded-none px-2.5 py-1 text-[11px] font-medium uppercase tracking-[0.12em] ${
+              isLeased
+                ? "bg-[#EAE5DF] text-[#9A8F85]"
+                : "bg-[#EAE5DF] text-[#1A1A1A]"
+            }`}
+          >
+            {unit.status}
+          </span>
+        </div>
+
+        {isAvailable ? (
+          <div className="mt-4 space-y-1 text-sm font-light text-[#332F2C]">
+            <p>
+              {unit.rent} · {unit.propertyDetails.bedrooms} bed · {formatBathrooms(unit.propertyDetails.bathrooms)}{" "}
+              ba
+            </p>
+            <p>{unit.propertyDetails.approxSqFt} sq ft (approx.)</p>
+          </div>
+        ) : (
+          <p className="mt-4 text-sm font-light text-[#4B4742]">
+            This residence is not currently available.
+          </p>
+        )}
+
+        <div className="mt-auto flex flex-col gap-2 pt-4">
+          <Link
+            href={detailHref}
+            className="inline-flex h-11 w-full items-center justify-center rounded-none bg-[#1A1A1A] px-4 text-sm font-medium tracking-[0.08em] text-white transition hover:bg-[#1A1A1A]/92"
+          >
+            {isAvailable ? "View residence" : "View details"}
+          </Link>
+          {isAvailable ? (
+            <button
+              type="button"
+              onClick={onInquire}
+              className="inline-flex h-10 w-full items-center justify-center rounded-none border border-[color:rgba(154,143,133,0.55)] px-4 text-sm font-medium tracking-[0.06em] text-[#1A1A1A] transition hover:bg-[color:rgba(154,143,133,0.08)]"
+            >
+              Inquire
+            </button>
+          ) : null}
+        </div>
+      </div>
+    </article>
+  );
+}
 
 export default function AvailabilityPage() {
   const [scheduleOpen, setScheduleOpen] = useState(false);
   const availableUnitCount = useMemo(() => getAvailableUnitCount(), []);
+  const availableUnits = useMemo(() => UNITS.filter((u) => u.status === "AVAILABLE"), []);
+  const leasedUnits = useMemo(() => UNITS.filter((u) => u.status === "LEASED"), []);
 
   const openSchedule = () => setScheduleOpen(true);
 
@@ -58,82 +141,24 @@ export default function AvailabilityPage() {
       <section id="units" className="border-t border-[color:rgba(154,143,133,0.25)] py-20">
         <div className="mx-auto w-full max-w-[1280px] px-6 sm:px-10 lg:px-12">
           <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
-            {UNITS.map((unit) => {
-              const isLeased = unit.status === "LEASED";
-              const isAvailable = !isLeased;
-              const detailHref = `/availability/${unit.unitNumber}`;
-
-              return (
-                <article
-                  key={unit.unitNumber}
-                  className={`flex min-h-[485px] flex-col border border-[color:rgba(154,143,133,0.55)] bg-white ${
-                    isLeased ? "opacity-60" : ""
-                  }`}
-                >
-                  <Link
-                    href={detailHref}
-                    className="block w-full text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1A1A1A]"
-                    aria-label={`View details for unit ${unit.unitNumber}`}
-                  >
-                    <img
-                      src={unit.photos[0] ?? "/images/6.jpg"}
-                      alt={`Unit ${unit.unitNumber}`}
-                      className={`h-48 w-full object-cover ${isLeased ? "opacity-50" : ""}`}
-                    />
-                  </Link>
-
-                  <div className="flex flex-1 flex-col p-4">
-                    <div className="flex items-center justify-between gap-3">
-                      <Link href={detailHref} className="font-display text-2xl text-[#1A1A1A] hover:underline">
-                        Unit {unit.unitNumber}
-                      </Link>
-                      <span
-                        className={`rounded-none px-2.5 py-1 text-[11px] font-medium uppercase tracking-[0.12em] ${
-                          isLeased
-                            ? "bg-[#EAE5DF] text-[#9A8F85]"
-                            : "bg-[#EAE5DF] text-[#1A1A1A]"
-                        }`}
-                      >
-                        {unit.status}
-                      </span>
-                    </div>
-
-                    {isAvailable ? (
-                      <div className="mt-4 space-y-1 text-sm font-light text-[#332F2C]">
-                        <p>
-                          {unit.rent} · {unit.propertyDetails.bedrooms} bed · {unit.propertyDetails.bathrooms}{" "}
-                          bath
-                        </p>
-                        <p>{unit.propertyDetails.approxSqFt} sq ft (approx.)</p>
-                      </div>
-                    ) : (
-                      <p className="mt-4 text-sm font-light text-[#4B4742]">
-                        This residence is not currently available.
-                      </p>
-                    )}
-
-                    <div className="mt-auto flex flex-col gap-2 pt-4">
-                      <Link
-                        href={detailHref}
-                        className="inline-flex h-11 w-full items-center justify-center rounded-none bg-[#1A1A1A] px-4 text-sm font-medium tracking-[0.08em] text-white transition hover:bg-[#1A1A1A]/92"
-                      >
-                        {isAvailable ? "View residence" : "View details"}
-                      </Link>
-                      {isAvailable ? (
-                        <button
-                          type="button"
-                          onClick={openSchedule}
-                          className="inline-flex h-10 w-full items-center justify-center rounded-none border border-[color:rgba(154,143,133,0.55)] px-4 text-sm font-medium tracking-[0.06em] text-[#1A1A1A] transition hover:bg-[color:rgba(154,143,133,0.08)]"
-                        >
-                          Inquire
-                        </button>
-                      ) : null}
-                    </div>
-                  </div>
-                </article>
-              );
-            })}
+            {availableUnits.map((unit) => (
+              <UnitCard key={unit.unitNumber} unit={unit} onInquire={openSchedule} />
+            ))}
           </div>
+
+          {leasedUnits.length > 0 && (
+            <div className="mt-16 border-t border-[color:rgba(154,143,133,0.25)] pt-12">
+              <div className="flex items-center gap-3 mb-8">
+                <span className="h-px w-8 shrink-0 bg-[#9A8F85]" aria-hidden />
+                <p className="text-xs uppercase tracking-[0.38em] text-[#9A8F85]">Also in the building</p>
+              </div>
+              <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
+                {leasedUnits.map((unit) => (
+                  <UnitCard key={unit.unitNumber} unit={unit} onInquire={openSchedule} />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </section>
 

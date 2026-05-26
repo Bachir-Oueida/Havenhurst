@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { ScheduleVisitModal } from "./schedule-visit-modal";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -213,5 +214,11 @@ export function Navbar({ onOpenPopup }: NavbarProps) {
 }
 
 export function SiteHeader() {
-  return <Navbar />;
+  const [scheduleOpen, setScheduleOpen] = useState(false);
+  return (
+    <>
+      <Navbar onOpenPopup={() => setScheduleOpen(true)} />
+      <ScheduleVisitModal isOpen={scheduleOpen} onClose={() => setScheduleOpen(false)} />
+    </>
+  );
 }

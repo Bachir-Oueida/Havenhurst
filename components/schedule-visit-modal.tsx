@@ -11,6 +11,7 @@ type FormValues = {
   name: string;
   email: string;
   date: string;
+  preferredTime: string;
   phone: string;
   message: string;
 };
@@ -19,9 +20,17 @@ const INITIAL_VALUES: FormValues = {
   name: "",
   email: "",
   date: "",
+  preferredTime: "",
   phone: "",
   message: "",
 };
+
+const TIME_OPTIONS = [
+  { value: "", label: "Select a time window" },
+  { value: "9am–12pm", label: "9am – 12pm" },
+  { value: "12pm–3pm", label: "12pm – 3pm" },
+  { value: "3pm–6pm", label: "3pm – 6pm" },
+];
 
 function getTodayDateValue() {
   const now = new Date();
@@ -167,7 +176,7 @@ export function ScheduleVisitModal({ isOpen, onClose }: ScheduleVisitModalProps)
             </label>
 
             <label className="flex flex-col gap-1 text-sm text-[#3B3733]">
-              Date
+              Preferred Showing Date
               <input
                 required
                 type="date"
@@ -181,6 +190,26 @@ export function ScheduleVisitModal({ isOpen, onClose }: ScheduleVisitModalProps)
                 }
                 className="h-11 rounded-none border border-[color:rgba(154,143,133,0.45)] bg-white px-3 text-[#1A1A1A] outline-none transition focus:border-[#1A1A1A]"
               />
+            </label>
+
+            <label className="flex flex-col gap-1 text-sm text-[#3B3733]">
+              Preferred Time
+              <select
+                value={values.preferredTime}
+                onChange={(event) =>
+                  setValues((current) => ({
+                    ...current,
+                    preferredTime: event.target.value,
+                  }))
+                }
+                className="h-11 rounded-none border border-[color:rgba(154,143,133,0.45)] bg-white px-3 text-[#1A1A1A] outline-none transition focus:border-[#1A1A1A]"
+              >
+                {TIME_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value} disabled={opt.value === ""}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
             </label>
 
             <label className="flex flex-col gap-1 text-sm text-[#3B3733]">

@@ -8,6 +8,7 @@ type ContactPayload = {
   name?: string;
   email?: string;
   date?: string;
+  preferredTime?: string;
   phone?: string;
   message?: string;
 };
@@ -15,11 +16,12 @@ type ContactPayload = {
 function validatePayload(
   body: ContactPayload,
 ):
-  | { valid: true; data: { name: string; email: string; date: string; phone: string; message: string } }
+  | { valid: true; data: { name: string; email: string; date: string; preferredTime: string; phone: string; message: string } }
   | { valid: false; error: string } {
   const name = body.name?.trim() ?? "";
   const email = body.email?.trim() ?? "";
   const date = body.date?.trim() ?? "";
+  const preferredTime = body.preferredTime?.trim() ?? "";
   const phone = body.phone?.trim() ?? "";
   const message = body.message?.trim() ?? "";
 
@@ -27,7 +29,7 @@ function validatePayload(
     return { valid: false, error: "Please complete all required fields." };
   }
 
-  return { valid: true, data: { name, email, date, phone, message } };
+  return { valid: true, data: { name, email, date, preferredTime, phone, message } };
 }
 
 export async function POST(request: NextRequest) {
@@ -56,7 +58,7 @@ export async function POST(request: NextRequest) {
     }
 
     const resend = new Resend(resendApiKey);
-    const { name, email, date, phone, message } = validation.data;
+    const { name, email, date, preferredTime, phone, message } = validation.data;
 
     await resend.emails.send({
       from: fromEmail,
@@ -69,6 +71,7 @@ export async function POST(request: NextRequest) {
         `Name: ${name}`,
         `Email: ${email}`,
         `Preferred Date: ${date}`,
+        `Preferred Time: ${preferredTime || "(Not specified)"}`,
         `Phone: ${phone || "(Not provided)"}`,
         `Message: ${message || "(Not provided)"}`,
       ].join("\n"),

@@ -149,7 +149,7 @@ export const UNITS: Unit[] = [
     status: "LEASED",
     rent: "$5,500/mo",
     securityDeposit: "$11,000",
-    photos: ["/images/6.jpg", "/images/3.jpg", "/images/4.jpg"],
+    photos: [],
     description:
       "An architectural statement at 1283 Havenhurst — soaring ceilings, gallery-like natural light, and a gourmet kitchen outfitted with premium appliances. A private balcony extends the living space outdoors in the heart of West Hollywood.",
     propertyDetails: {
@@ -358,7 +358,7 @@ export const UNITS: Unit[] = [
     },
   },
   {
-    unitNumber: "401",
+    unitNumber: "407",
     status: "AVAILABLE",
     rent: "$6,500/mo",
     securityDeposit: "$13,000",
@@ -435,4 +435,14 @@ export function getUnitBySlug(slug: string): Unit | undefined {
 
 export function getAvailableUnitCount(): number {
   return UNITS.filter((u) => u.status === "AVAILABLE").length;
+}
+
+/**
+ * Strips trailing decimal zeros from a bathroom count string.
+ * "2.00" → "2", "2.50" → "2.5", "2.5" → "2.5", "3" → "3"
+ */
+export function formatBathrooms(value: string): string {
+  const num = parseFloat(value);
+  if (isNaN(num)) return value;
+  return String(num);
 }
