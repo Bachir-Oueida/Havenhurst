@@ -476,7 +476,7 @@ export default function Home() {
       </section>
 
       {/* ── Homepage Gallery ── */}
-      <HomeGallery />
+      {/* <HomeGallery /> */}
 
       <section id="neighborhood" className="border-t border-[color:rgba(154,143,133,0.22)] bg-[#F5F2ED] py-24 lg:py-32">
         <div className="mx-auto w-full max-w-[1280px] px-6 sm:px-10 lg:px-12">
